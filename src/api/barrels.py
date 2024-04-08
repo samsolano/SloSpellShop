@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from src.api import auth
+import sqlalchemy
+from src import database as db
 
 router = APIRouter(
     prefix="/barrels",
@@ -22,6 +24,26 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     """ """
     print(f"barrels delievered: {barrels_delivered} order_id: {order_id}")
 
+    with db.engine.begin() as connection:
+    #get current ml
+        greenMl = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
+
+        newAmount = greenMl
+        purchasePrice = 0
+        for barrel in barrels_delivered:
+            newAmount += barrel.ml_per_barrel
+            purchasePrice += barrel.price
+
+        #update ml
+        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_ml = {newAmount} "))
+
+        #get current gold after purchase
+        currentGold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar() - purchasePrice
+        #update gold
+        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = {currentGold} "))
+
+
+
     return "OK"
 
 # Gets called once a day
@@ -30,10 +52,18 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
     print(wholesale_catalog)
 
-    return [
-        {
-            "sku": "SMALL_RED_BARREL",
-            "quantity": 1,
-        }
-    ]
+
+    with db.engine.begin() as connection:
+
+        #check number of potions, if less than 10 then order
+
+        numPotions = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
+
+        if numPotions < 10:
+            return [
+                {
+                    "sku": "SMALL_GREEN_BARREL",
+                    "quantity": 1,
+                }
+            ]
 
