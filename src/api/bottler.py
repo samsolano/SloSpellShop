@@ -21,12 +21,14 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
     print(f"potions delievered: {potions_delivered} order_id: {order_id}")
 
     with db.engine.begin() as connection:
-
+        #get current num of potions
         numPotionsCurr = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
         for potion in potions_delivered:
             numPotionsCurr += 1
-
+        #update table for number of potions
         connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = {numPotionsCurr}"))
+        
+###############################################################################################################################
         
          
 
@@ -43,19 +45,8 @@ def get_bottle_plan():
     # Expressed in integers from 1 to 100 that must sum up to 100.
 
     # Initial logic: bottle all barrels into red potions.
-
-    return [
-            {
-                "potion_type": [100, 0, 0, 0],
-                "quantity": 5,
-            }
-        ]
-
-if __name__ == "__main__":
-    print(get_bottle_plan())
-
-with db.engine.begin() as connection:
-        #get amount of green potion Ml
+    #get amount of green potion Ml
+    with db.engine.begin() as connection:
         greenMl = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
 
         while greenMl > 100:
@@ -63,6 +54,19 @@ with db.engine.begin() as connection:
              numPotions = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar() + 1
 
             # add potion number back into table
-             connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = %d" % numPotions))
+             connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = {numPotions}"))
 
              greenMl -= 100
+
+        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_ml = {greenMl}"))
+
+    return [
+            {
+                "potion_type": [0, 100, 0, 0],
+                "quantity": 5,
+            }
+        ]
+
+if __name__ == "__main__":
+    print(get_bottle_plan())
+
