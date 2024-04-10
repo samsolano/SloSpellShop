@@ -61,17 +61,17 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar()
 
 
-        barrel = wholesale_catalog[0]
-        barrelPrice = barrel.price
+        for barrel in wholesale_catalog:
+            barrelPrice = barrel.price
+            barrelType = barrel.potion_type
 
-
-        if numPotions < 10 and gold >= barrelPrice:
-            currGold = gold - barrelPrice
-            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = {currGold}"))
-            return [
-                {
-                    "sku": "SMALL_GREEN_BARREL",
-                    "quantity": 1,
-                }
-            ]
+            if numPotions < 10 and gold >= barrelPrice and barrelType == [0,100,0,0]:
+                currGold = gold - barrelPrice
+                connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = {currGold}"))
+                return [
+                    {
+                        "sku": "SMALL_GREEN_BARREL",
+                        "quantity": 1,
+                    }
+                ]
 
