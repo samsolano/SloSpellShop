@@ -55,11 +55,19 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
     with db.engine.begin() as connection:
 
-        #check number of potions, if less than 10 then order
+        #check number of potions, if less than 10 then order barrel and change gold amount
 
         numPotions = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
+        gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar()
 
-        if numPotions < 10:
+
+        barrel = wholesale_catalog[0]
+        barrelPrice = barrel.price
+
+
+        if numPotions < 10 and gold >= barrelPrice:
+            currGold = gold - barrelPrice
+            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = {currGold}"))
             return [
                 {
                     "sku": "SMALL_GREEN_BARREL",

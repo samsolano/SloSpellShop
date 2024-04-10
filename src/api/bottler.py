@@ -20,13 +20,24 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
     """ """
     print(f"potions delievered: {potions_delivered} order_id: {order_id}")
 
+    #assuming theres only green potions being delivered
+    #potionList = potions_delivered[0]
+
     with db.engine.begin() as connection:
-        #get current num of potions
-        numPotionsCurr = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
         for potion in potions_delivered:
-            numPotionsCurr += 1
-        #update table for number of potions
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = {numPotionsCurr}"))
+            quant = potion.quantity
+            numPotionsCurr = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar() + quant
+            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = {numPotionsCurr}"))
+        
+
+
+
+
+        # #get current num of potions
+        # numPotionsCurr = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
+        # for potion in potions_delivered:
+        #     numPotionsCurr += 1
+        # #update table for number of potions
         
 ###############################################################################################################################
         
@@ -46,6 +57,7 @@ def get_bottle_plan():
 
     # Initial logic: bottle all barrels into red potions.
     #get amount of green potion Ml
+    quant = 0
     with db.engine.begin() as connection:
         greenMl = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
 
@@ -57,13 +69,14 @@ def get_bottle_plan():
              connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = {numPotions}"))
 
              greenMl -= 100
+             quant += 1
 
         connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_ml = {greenMl}"))
 
     return [
             {
                 "potion_type": [0, 100, 0, 0],
-                "quantity": 5,
+                "quantity": quant,
             }
         ]
 

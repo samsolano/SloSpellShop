@@ -17,14 +17,14 @@ def get_catalog():
 
 
         
-        
-    return [
-            {
-                "sku": "GREEN_POTION_0",
-                "name": "green potion",
-                "quantity": potionNum,
-                "price": 50,
-                "potion_type": [0, 100, 0, 0],
-            }
-        ]
+    if potionNum > 1:
+        return [
+                {
+                    "sku": "GREEN_POTION_0",
+                    "name": "green potion",
+                    "quantity": 1,
+                    "price": 50,
+                    "potion_type": [0, 100, 0, 0],
+                }
+            ]
 
