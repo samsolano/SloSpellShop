@@ -14,9 +14,9 @@ def get_catalog():
     catalog = []
 
     with db.engine.begin() as connection:
-        redNum = connection.execute(sqlalchemy.text("SELECT num_red_potion FROM global_inventory")).scalar()
-        greenNum = connection.execute(sqlalchemy.text("SELECT num_green_potion FROM global_inventory")).scalar()
-        blueNum = connection.execute(sqlalchemy.text("SELECT num_blue_potion FROM global_inventory")).scalar()
+        redNum = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
+        greenNum = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
+        blueNum = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).scalar()
 
 
         
