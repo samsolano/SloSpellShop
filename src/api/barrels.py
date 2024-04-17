@@ -68,9 +68,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
     print(wholesale_catalog)
 
-
     with db.engine.begin() as connection:
-
         #check number of potions, if less than 10 then order barrel and change gold amount
 
         numRedPotions = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()

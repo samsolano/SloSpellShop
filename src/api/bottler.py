@@ -20,16 +20,16 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
     """ """
     print(f"potions delievered: {potions_delivered} order_id: {order_id}")
 
-    #get num of color ml and potions
-    numRed = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
-    numGreen = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
-    numBlue = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).scalar()
-    numRedMl = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).scalar()
-    numGreenMl = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
-    numBlueMl = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).scalar()
-
-
     with db.engine.begin() as connection:
+        
+        #get num of color ml and potions
+        numRed = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
+        numGreen = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
+        numBlue = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).scalar()
+        numRedMl = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).scalar()
+        numGreenMl = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
+        numBlueMl = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).scalar()
+
         for potion in potions_delivered:
             quantity = potion.quantity
             type = potion.potion_type
