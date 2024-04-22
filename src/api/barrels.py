@@ -10,6 +10,8 @@ router = APIRouter(
     dependencies=[Depends(auth.get_api_key)],
 )
 
+# need to fix catalog, bottling plan, wholesale plan, 
+
 class Barrel(BaseModel):
     sku: str
 
