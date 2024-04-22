@@ -20,38 +20,38 @@ def get_catalog():
 
 
         
-    if redNum > 0:
-        catalog.append(
-                {
-                    "sku": "RED_POTION",
-                    "name": "red potion",
-                    "quantity": redNum,
-                    "price": 50,
-                    "potion_type": [100, 0, 0, 0]
-                }
-        )
+        if redNum > 0:
+            catalog.append(
+                    {
+                        "sku": "RED_POTION",
+                        "name": "red potion",
+                        "quantity": redNum,
+                        "price": 50,
+                        "potion_type": [100, 0, 0, 0]
+                    }
+            )
 
-    if greenNum > 0:
-        catalog.append(
-                {
-                    "sku": "GREEN_POTION",
-                    "name": "green potion",
-                    "quantity": greenNum,
-                    "price": 50,
-                    "potion_type": [0, 100, 0, 0]
-                }
-        )
+        if greenNum > 0:
+            catalog.append(
+                    {
+                        "sku": "GREEN_POTION",
+                        "name": "green potion",
+                        "quantity": greenNum,
+                        "price": 50,
+                        "potion_type": [0, 100, 0, 0]
+                    }
+            )
 
-    if blueNum > 0:
-        catalog.append(
-                {
-                    "sku": "BLUE_POTION",
-                    "name": "blue  potion",
-                    "quantity": blueNum,
-                    "price": 50,
-                    "potion_type": [0, 0, 100, 0]
-                }
-        )
+        if blueNum > 0:
+            catalog.append(
+                    {
+                        "sku": "BLUE_POTION",
+                        "name": "blue  potion",
+                        "quantity": blueNum,
+                        "price": 50,
+                        "potion_type": [0, 0, 100, 0]
+                    }
+            )
     
     return catalog
 

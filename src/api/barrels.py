@@ -85,8 +85,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         lessBlue = numBluePotions < 10
 
 
-        for i in range(1):
-            barrel = wholesale_catalog[i]
+        for barrel in wholesale_catalog:
             #red
             if ((barrel.potion_type == [1,0,0,0]) and (barrel.price < gold) and (lessRed)):
                 gold -= barrel.price
