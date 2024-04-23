@@ -68,23 +68,22 @@ def get_bottle_plan():
         blueMl = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).scalar()
 
         bottle_plan = []
-        potions = connection.execute(sqlalchemy.text("SELECT * FROM potions"))
-        print("yo")
 
-        for potion in potions:
-            haveRed = redMl > (redNeeded:= connection.execute(sqlalchemy.text("SELECT red FROM potions")).scalar())
-            haveGreen = greenMl > (greenNeeded:= connection.execute(sqlalchemy.text("SELECT green FROM potions")).scalar())
-            haveBlue = blueMl > (blueNeeded:= connection.execute(sqlalchemy.text("SELECT blue FROM potions")).scalar())
+        colors = connection.execute(sqlalchemy.text("SELECT red,blue,green FROM potions"))
 
-            if(haveRed and haveGreen and haveBlue):
-                redMl -= redNeeded
-                greenMl -= greenNeeded
-                blueMl -= blueNeeded
+        for red,blue,green in colors:
+
+            if((redMl > red) and (greenMl > green) and (blueMl > blue)):
+                redMl -= red
+                greenMl -= green
+                blueMl -= blue
                 bottle_plan.append(
                 {
-                    "potion_type": [redNeeded, greenNeeded, blueNeeded, 0],
+                    "potion_type": [redMl, greenMl, blueMl, 0],
                     "quantity": 1
                 })
+
+
             
 
         # #if more than 100ml of red, order potions
