@@ -80,9 +80,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
         purchase_plan = []
 
-        lessRed = numRedml < 100
-        lessGreen = numGreenml < 100
-        lessBlue = numBlueml < 100
+        lessRed = numRedml < 300
+        lessGreen = numGreenml < 300
+        lessBlue = numBlueml < 300
 
 
         for barrel in wholesale_catalog:
