@@ -79,7 +79,7 @@ def get_bottle_plan():
                 blueMl -= blue
                 bottle_plan.append(
                 {
-                    "potion_type": [redMl, greenMl, blueMl, 0],
+                    "potion_type": [red, green, blue, 0],
                     "quantity": 1
                 })
 
