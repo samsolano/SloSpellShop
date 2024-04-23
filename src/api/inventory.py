@@ -19,8 +19,14 @@ def get_inventory():
         redNum = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
         greenNum = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
         blueNum = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).scalar()
+
+        redMl = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).scalar()
+        greenMl = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
+        blueMl = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).scalar()
+
+        gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar()
     
-    return {"number_of_potions": 0, "ml_in_barrels": 0, "gold": 0}
+    return {f"number_of_potions": {redNum + greenNum + blueNum}, "ml_in_barrels": {redMl + greenMl + blueMl}, "gold": {gold}}
 
 # Gets called once a day
 @router.post("/plan")

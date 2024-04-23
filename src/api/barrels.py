@@ -73,21 +73,21 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     with db.engine.begin() as connection:
         #check number of potions, if less than 10 then order barrel and change gold amount
 
-        # numRedPotions = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
-        # numGreenPotions = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
-        # numBluePotions = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).scalar()
+        numRedPotions = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
+        numGreenPotions = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
+        numBluePotions = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).scalar()
         gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar()
 
         purchase_plan = []
 
-        # lessRed = numRedPotions < 10
-        # lessGreen = numGreenPotions < 10
-        # lessBlue = numBluePotions < 10
+        lessRed = numRedPotions < 10
+        lessGreen = numGreenPotions < 10
+        lessBlue = numBluePotions < 10
 
 
         for barrel in wholesale_catalog:
             #red
-            if ((barrel.potion_type == [1,0,0,0]) and (barrel.price < gold)):
+            if ((barrel.potion_type == [1,0,0,0]) and (barrel.price < gold) and lessRed):
                 gold -= barrel.price
 
                 purchase_plan.append({
@@ -95,7 +95,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                                         "quantity": 1
                                     })
             #green    
-            if ((barrel.potion_type == [0,1,0,0]) and (barrel.price < gold)):
+            if ((barrel.potion_type == [0,1,0,0]) and (barrel.price < gold) and lessGreen):
                 gold -= barrel.price
 
                 purchase_plan.append({
@@ -103,7 +103,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                                         "quantity": 1
                                     })
             #blue    
-            if ((barrel.potion_type == [0,0,1,0]) and (barrel.price < gold)):
+            if ((barrel.potion_type == [0,0,1,0]) and (barrel.price < gold) and lessBlue):
                 gold -= barrel.price
 
                 purchase_plan.append({
