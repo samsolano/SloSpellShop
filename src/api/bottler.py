@@ -69,6 +69,7 @@ def get_bottle_plan():
 
         bottle_plan = []
         potions = connection.execute(sqlalchemy.text("SELECT * FROM potions"))
+        print(potions)
 
         for potion in potions:
             haveRed = redMl > (redNeeded:= connection.execute(sqlalchemy.text("SELECT red FROM potions")).scalar())
