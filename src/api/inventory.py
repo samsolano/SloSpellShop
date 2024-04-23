@@ -24,7 +24,7 @@ def get_inventory():
 
         quantity = connection.execute(sqlalchemy.text("SELECT quantity FROM potions"))
         for count in quantity:
-            total += count
+            total += count[0]
 
     return {f"number_of_potions": {total}, "ml_in_barrels": {redMl + greenMl + blueMl}, "gold": {gold}}
 
