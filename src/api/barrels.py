@@ -60,8 +60,6 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
         #update gold
         connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = {currentGold} "))
 
-
-
     return "OK"
 
 # Gets called once a day
@@ -113,9 +111,3 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 
                 
         return purchase_plan
-                
-            
-
-
-
-

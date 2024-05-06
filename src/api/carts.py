@@ -91,10 +91,31 @@ cartNum = 0
 def create_cart(new_cart: Customer):
     """ """
 
-    global cartNum 
-    cartNum += 1
-    cart[cartNum] = {}
-    return {"cart_id": cartNum}
+    # 1. put customer information into the customer table with a unique id
+    # 2. check if the customer exists if not then create one
+    # 3. then create a cart row with the associated customer
+
+    response = {}
+
+    with db.engine.begin() as connection: 
+
+        exists = connection.execute(sqlalchemy.text("SELECT cu_id FROM customer WHERE name = :custName AND class = :custClass AND level = :custLevel"),
+                                [{"custName":new_cart.customer_name , "custClass": new_cart.character_class, "custLevel": new_cart.level}])
+
+
+        if(exists == None):
+            connection.execute(sqlalchemy.text("INSERT INTO customer (name, class, level) VALUES (:custName, :custClass, :custLevel)"),
+                                [{"custName":new_cart.customer_name , "custClass": new_cart.character_class, "custLevel": new_cart.level}])
+
+
+        customerid = connection.execute(sqlalchemy.text("SELECT cu_id FROM customer WHERE name = :custName"), [{"custName":new_cart.customer_name }]).scalar()
+
+        connection.execute(sqlalchemy.text("INSERT INTO cart (cu_id) VALUES (:customerID)"), [{"customerID": customerid}])
+
+        cartid = connection.execute(sqlalchemy.text("SELECT cart_id FROM cart WHERE cu_id = :custID"), [{"custID":customerid }]).scalar()
+
+    response['cart_id'] = str(cartid)
+    return response
 
 
 class CartItem(BaseModel):
@@ -105,7 +126,11 @@ class CartItem(BaseModel):
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
 
-    cart[cart_id] = {item_sku: cart_item.quantity}
+    # 1. get associated cart id then find item sku and put the quantity wanted accordingly
+
+    with db.engine.begin() as connection: 
+        connection.execute(sqlalchemy.text("INSERT INTO cart_item (cart_id, item, quantity) VALUES (:cartID, :name, :quant)"), 
+                           [{"cartID": cart_id, "name": item_sku , "quant": cart_item.quantity}])
 
     return "OK"
 
@@ -147,3 +172,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
     return {"total_potions_bought": totalPotions, "total_gold_paid": (50 * totalPotions)}
 
+
+
+
+# still need to check if customer already exists in customer table inside of create_cart function
