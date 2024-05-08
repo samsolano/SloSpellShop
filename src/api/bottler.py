@@ -31,7 +31,7 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
 
             # gets name of potion delivered
             name = connection.execute(sqlalchemy.text("SELECT name FROM potions WHERE red = :red AND green = :green AND blue = :blue"),
-                                    [{"quant": deliverQuantity, "red": type[0], "green": type[1], "blue": type[2] }])
+                                    [{"quant": deliverQuantity, "red": type[0], "green": type[1], "blue": type[2] }]).scalar()
             
             # inserts into ledger the name and quantity of new potion
             connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"),
