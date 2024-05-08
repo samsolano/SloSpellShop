@@ -65,7 +65,7 @@ def get_bottle_plan():
 
         for red,blue,green in colors:
 
-            if((redMl > red) and (greenMl > green) and (blueMl > blue)):
+            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
                 redMl -= red
                 greenMl -= green
                 blueMl -= blue
