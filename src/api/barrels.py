@@ -30,35 +30,35 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     print(f"barrels delievered: {barrels_delivered} order_id: {order_id}")
 
     with db.engine.begin() as connection:
-    #get current ml
-        greenMl = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
-        redMl = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).scalar()
-        blueMl = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).scalar()
+    #get new ml and insert into ledger
+    #update and decrease gold into ledger
+
         purchasePrice = 0
+        name = ""
 
         #gets new ml values for potion color
         for barrel in barrels_delivered:
             # for red barrel
             if barrel.potion_type == [1,0,0,0]:
                 redMl += (barrel.ml_per_barrel * barrel.quantity)
+                name = "RedMl"
             # for green barrel
             elif barrel.potion_type == [0,1,0,0]:
                 greenMl += (barrel.ml_per_barrel * barrel.quantity)
+                name = "GreenMl"
             # for blue barrel
             elif barrel.potion_type == [0,0,1,0]:
                 blueMl += (barrel.ml_per_barrel * barrel.quantity)
+                name = "BlueMl"
 
             purchasePrice += (barrel.price * barrel.quantity)
 
-        #update ml
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_red_ml = {redMl} "))
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_ml = {greenMl} "))
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_blue_ml = {blueMl} "))
+            connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"), 
+                               [{"sku":name, "quantity": barrel.quantity}])
 
-        #get current gold after purchase
-        currentGold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar() - purchasePrice
-        #update gold
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = {currentGold} "))
+
+        connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"), 
+                               [{"sku": "Gold", "quantity": -1 * purchasePrice}])
 
     return "OK"
 
@@ -69,45 +69,45 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     print(wholesale_catalog)
 
     with db.engine.begin() as connection:
-        #check number of potions, if less than 10 then order barrel and change gold amount
+        #check ml if less than 300 then buy stuff
 
-        numRedml = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).scalar()
-        numGreenml = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
-        numBlueml = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).scalar()
-        gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar()
+        redMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'RedMl'")).scalar()
+        greenMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'GreenMl'")).scalar()
+        blueMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'BlueMl'")).scalar()
+        gold = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'gold'")).scalar()
+        spent = 0
 
         purchase_plan = []
 
-        lessRed = numRedml < 300
-        lessGreen = numGreenml < 300
-        lessBlue = numBlueml < 300
+        lessRed = redMl < 300
+        lessGreen = greenMl < 300
+        lessBlue = blueMl < 300
 
 
         for barrel in wholesale_catalog:
             #red
             if ((barrel.potion_type == [1,0,0,0]) and (barrel.price < gold) and lessRed):
-                gold -= barrel.price
-
                 purchase_plan.append({
                                         "sku": barrel.sku,
                                         "quantity": 1
                                     })
             #green    
             if ((barrel.potion_type == [0,1,0,0]) and (barrel.price < gold) and lessGreen):
-                gold -= barrel.price
-
                 purchase_plan.append({
                                         "sku": barrel.sku,
                                         "quantity": 1
                                     })
             #blue    
             if ((barrel.potion_type == [0,0,1,0]) and (barrel.price < gold) and lessBlue):
-                gold -= barrel.price
-
                 purchase_plan.append({
                                         "sku": barrel.sku,
                                         "quantity": 1
                                     })
+            spent += barrel.price
+                
+        connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"),
+                               [{"sku": "gold", "quantity": (spent - gold) }])
+            
                 
                 
         return purchase_plan

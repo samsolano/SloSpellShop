@@ -28,25 +28,18 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
             deliverQuantity = potion.quantity
             type = potion.potion_type
 
-            connection.execute(sqlalchemy.text("UPDATE potions SET quantity = quantity + :quant WHERE red = :red AND green = :green AND blue = :blue"),
-                                [{"quant": deliverQuantity, "red": type[0], "green": type[1], "blue": type[2] }])
+
+            # gets name of potion delivered
+            name = connection.execute(sqlalchemy.text("SELECT name FROM potions WHERE red = :red AND green = :green AND blue = :blue"),
+                                    [{"quant": deliverQuantity, "red": type[0], "green": type[1], "blue": type[2] }])
             
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = num_red_ml - :redUsed, num_green_ml = num_green_ml - :greenUsed, num_blue_ml = num_blue_ml - :blueUsed"),
-                               [{"redUsed": type[0] ,"greenUsed": type[1] ,"blueUsed": type[2]}])
-
-
-            # #check potion type then subtract ml and add potions
-            # if(type == [100,0,0,0]):
-            #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_red_potions = {numRed + quantity}"))
-            #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_red_ml = {numRedMl - (quantity * 100)}"))
-
-            # if(type == [0,100,0,0]):
-            #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = {numGreen + quantity}"))
-            #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_ml = {numGreenMl - (quantity * 100)}"))
-            # if(type == [0,0,100,0]):
-            #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_blue_potions = {numBlue + quantity}"))
-            #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_blue_ml = {numBlueMl - (quantity * 100)}"))
-        
+            # inserts into ledger the name and quantity of new potion
+            connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"),
+                               [{"sku":name, "quantity": 1}])
+            
+            # inserts into ledge the change in mL
+            connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:redMl, :RedQuantity), (:greenMl, :GreenQuantity), (:blueMl, :BlueQuantity)"),
+                                [{"redMl": "RedMl", "RedQuantity": -1 * deliverQuantity * type[0], "greenMl": "greenMl", "GreenQuantity": -1 * deliverQuantity * type[1], "blueMl": "BlueMl", "BlueQuantity": -1 * deliverQuantity * type[2]}])
 
     return "OK"
 
@@ -56,16 +49,15 @@ def get_bottle_plan():
     Go from barrel to bottle.
     """
 
-    # Each bottle has a quantity of what proportion of red, blue, and
-    # green potion to add.
+    # Each bottle has a quantity of what proportion of red, blue, and green potion to add.
     # Expressed in integers from 1 to 100 that must sum up to 100.
 
-    # Initial logic: bottle all barrels into red potions.
-    #get amount of green potion Ml
+    # get amount of Ml
     with db.engine.begin() as connection:
-        redMl = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).scalar()
-        greenMl = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
-        blueMl = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).scalar()
+        redMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'RedMl'")).scalar()
+        greenMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'GreenMl'")).scalar()
+        blueMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'BlueMl'")).scalar()
+        
 
         bottle_plan = []
 
@@ -82,42 +74,6 @@ def get_bottle_plan():
                     "potion_type": [red, green, blue, 0],
                     "quantity": 1
                 })
-
-
-            
-
-        # #if more than 100ml of red, order potions
-        # while redMl > 100:
-        #      redMl -= 100
-        #      redNum += 1
-        # if(redNum > 0):
-        #     bottle_plan.append(
-        #         {
-        #             "potion_type": [100, 0, 0, 0],
-        #             "quantity": redNum
-        #         })
-            
-        # #if more than 100ml of green, order potions
-        # while greenMl > 100:
-        #      greenMl -= 100
-        #      greenNum += 1
-        # if(greenNum > 0):
-        #     bottle_plan.append(
-        #         {
-        #             "potion_type": [0, 100, 0, 0],
-        #             "quantity": greenNum
-        #         })
-            
-        # #if more than 100ml of blue, order potions
-        # while blueMl > 100:
-        #      blueMl -= 100
-        #      blueNum += 1
-        # if(blueNum > 0):
-        #     bottle_plan.append(
-        #         {
-        #             "potion_type": [0, 0, 100, 0],
-        #             "quantity": blueNum
-        #         })
             
     return bottle_plan
 

@@ -142,37 +142,44 @@ class CartCheckout(BaseModel):
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
 
-    totalPotions = 0
+    # 
+
 
     with db.engine.begin() as connection:
         redNum = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
-        greenNum = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
-        blueNum = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).scalar()
-        gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar()
-        currCart = cart[cart_id]
+
+    # totalPotions = 0
+
+    # with db.engine.begin() as connection:
+    #     redNum = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
+    #     greenNum = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
+    #     blueNum = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).scalar()
+    #     gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar()
+    #     currCart = cart[cart_id]
 
 
-        for sku in currCart:
-            if sku == "RED_POTION":
-                redNum -= currCart[sku]
-                totalPotions += currCart[sku]
-            elif sku == "GREEN_POTION":
-                greenNum -= currCart[sku]
-                totalPotions += currCart[sku]
-            elif sku == "BLUE_POTION":
-                blueNum -= currCart[sku]
-                totalPotions += currCart[sku]
-
-
-
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_red_potions = {redNum}"))
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = {greenNum}"))
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_blue_potions = {blueNum}"))
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = {gold + (50 * totalPotions)}"))
-
-    return {"total_potions_bought": totalPotions, "total_gold_paid": (50 * totalPotions)}
+    #     for sku in currCart:
+    #         if sku == "RED_POTION":
+    #             redNum -= currCart[sku]
+    #             totalPotions += currCart[sku]
+    #         elif sku == "GREEN_POTION":
+    #             greenNum -= currCart[sku]
+    #             totalPotions += currCart[sku]
+    #         elif sku == "BLUE_POTION":
+    #             blueNum -= currCart[sku]
+    #             totalPotions += currCart[sku]
 
 
 
+    #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_red_potions = {redNum}"))
+    #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = {greenNum}"))
+    #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_blue_potions = {blueNum}"))
+    #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = {gold + (50 * totalPotions)}"))
 
-# still need to check if customer already exists in customer table inside of create_cart function
+    # return {"total_potions_bought": totalPotions, "total_gold_paid": (50 * totalPotions)}
+
+
+
+
+# TO DO:
+#   still need to check if customer already exists in customer table inside of create_cart function
