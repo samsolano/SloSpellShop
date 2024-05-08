@@ -54,19 +54,61 @@ def search_orders(
     time is 5 total line items.
     """
 
+    
+    # Determine the column to sort by based on the `sort` parameter
     if sort_col is search_sort_options.customer_name:
-        order_by = db.search_view.c.customer_name
+        order_by = db.customer.c.name
     elif sort_col is search_sort_options.item_sku:
-        order_by = db.search_view.c.potion_sku
+        order_by = db.cart_item.c.item
     elif sort_col is search_sort_options.line_item_total:
-        order_by = db.search_view.c.cost
+        order_by = db.cart_item.c.quantity
+    elif sort_col is search_sort_options.timestamp:
+        order_by = db.cart_item.c.created_at
     else:
-        order_by = db.search_view.c.created_at
+        # If an invalid sorting option is provided, raise an assertion error
+        assert False
 
-    if sort_order == search_sort_order.asc:
-        order_by = order_by.asc()
-    else:
-        order_by = order_by.desc()
+    # Construct the SQL query
+    stmt = (
+        sqlalchemy.select(
+            db.customer.c.name,
+            db.cart_item.c.item,
+            db.cart_item.c.quantity,
+            db.cart_item.c.created_at
+        )
+        .limit(5)
+        .offset(0)
+        .order_by(order_by, db.cart_item.c.created_at)
+    )
+
+    with db.engine.begin() as connection: 
+        if customer_name != "":
+            # customer_name = connection.execute(sqlalchemy.text("SELECT name FROM customer WHERE name = :custName"), [{"custName":new_cart.customer_name }]).scalar()
+            stmt = stmt.where(db.customer.c.name.ilike(f"%{customer_name}%"))
+
+        if potion_sku != "":
+            stmt = stmt.where(db.cart_item.c.item.ilike(f"%{potion_sku}%"))
+
+
+    # Execute the SQL query
+    with db.engine.connect() as conn:
+        result = conn.execute(stmt)
+        json_data = []
+        # Fetch the results row by row and construct JSON data
+        for row in result:
+            json_data.append(
+            {
+                "line_item_id": row.cart_id,
+                "item_sku": f"{row.quantity} {row.item}",
+                "customer_name":row.name ,
+                "line_item_total":(row.quantity * 50),
+                "timestamp": row.created_at,
+            }
+        )
+
+    # Return the JSON data
+    return json_data
+
 
     # return {
     #     "previous": "",
