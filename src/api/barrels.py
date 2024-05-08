@@ -87,25 +87,29 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
 
         for barrel in wholesale_catalog:
-            #red
-            if ((barrel.potion_type == [1,0,0,0]) and (barrel.price < gold) and lessRed and barrel.price > 65):
+            if ((barrel.price < gold) and barrel.price > 65):
+                gold -= barrel.price
+                spent += barrel.price
                 purchase_plan.append({
                                         "sku": barrel.sku,
                                         "quantity": 1
                                     })
-            #green    
-            if ((barrel.potion_type == [0,1,0,0]) and (barrel.price < gold) and lessGreen and barrel.price > 65):
-                purchase_plan.append({
-                                        "sku": barrel.sku,
-                                        "quantity": 1
-                                    })
-            #blue    
-            if ((barrel.potion_type == [0,0,1,0]) and (barrel.price < gold) and lessBlue and barrel.price > 65):
-                purchase_plan.append({
-                                        "sku": barrel.sku,
-                                        "quantity": 1
-                                    })
-            spent += barrel.price
+            # #green    
+            # if ((barrel.potion_type == [0,1,0,0]) and (barrel.price < gold) and lessGreen and barrel.price > 65):
+            #     gold -= barrel.price
+            #     spent += barrel.price
+            #     purchase_plan.append({
+            #                             "sku": barrel.sku,
+            #                             "quantity": 1
+            #                         })
+            # #blue    
+            # if ((barrel.potion_type == [0,0,1,0]) and (barrel.price < gold) and lessBlue and barrel.price > 65):
+            #     gold -= barrel.price
+            #     spent += barrel.price
+            #     purchase_plan.append({
+            #                             "sku": barrel.sku,
+            #                             "quantity": 1
+            #                         })
                 
         connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"),
                                [{"sku": "gold", "quantity": -spent }])
