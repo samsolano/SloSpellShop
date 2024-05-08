@@ -18,8 +18,9 @@ def reset():
     """
 
     with db.engine.begin() as connection:
+        connection.execute(sqlalchemy.text("TRUNCATE TABLE ledger"))
         connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES ('RedPotion', :quantity),('GreenPotion', :quantity),('BluePotion', :quantity),('RedMl', :quantity),('GreenMl', :quantity),('BlueMl', :quantity),('Gold', 100)"),
-                               [{"quantity": 1}])
+                               [{"quantity": 0}])
 
 
     return "OK"
