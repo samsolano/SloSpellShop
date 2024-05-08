@@ -16,17 +16,12 @@ def get_inventory():
     """ """
 
     with db.engine.begin() as connection:
-        redMl = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).scalar()
-        greenMl = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
-        blueMl = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).scalar()
-        gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar()
-        total = 0
+        Ml = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name LIKE %Ml%")).scalar()
+        gold = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'gold'")).scalar()
+        total = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name LIKE %Potion%")).scalar()
 
-        quantity = connection.execute(sqlalchemy.text("SELECT quantity FROM potions"))
-        for count in quantity:
-            total += count[0]
 
-    return {f"number_of_potions": {total}, "ml_in_barrels": {redMl + greenMl + blueMl}, "gold": {gold}}
+    return {f"number_of_potions": {total}, "ml_in_barrels": {Ml}, "gold": {gold}}
 
 # Gets called once a day
 @router.post("/plan")
@@ -51,8 +46,6 @@ def deliver_capacity_plan(capacity_purchase : CapacityPurchase, order_id: int):
     """ 
     Start with 1 capacity for 50 potions and 1 capacity for 10000 ml of potion. Each additional 
     capacity unit costs 1000 gold.
-    """
-
-    
+    """    
 
     return "OK"
