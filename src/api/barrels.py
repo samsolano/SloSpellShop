@@ -86,7 +86,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         # lessBlue = blueMl < 1000
 
         for barrel in wholesale_catalog:
-            if ((barrel.price < gold) and barrel.price > 65):
+            if ((barrel.price <= gold) and barrel.price > 65):
                 gold -= barrel.price
                 spent += barrel.price
                 purchase_plan.append({

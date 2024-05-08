@@ -54,19 +54,33 @@ def search_orders(
     time is 5 total line items.
     """
 
-    return {
-        "previous": "",
-        "next": "",
-        "results": [
-            {
-                "line_item_id": 1,
-                "item_sku": "1 oblivion potion",
-                "customer_name": "Scaramouche",
-                "line_item_total": 50,
-                "timestamp": "2021-01-01T00:00:00Z",
-            }
-        ],
-    }
+    if sort_col is search_sort_options.customer_name:
+        order_by = db.search_view.c.customer_name
+    elif sort_col is search_sort_options.item_sku:
+        order_by = db.search_view.c.potion_sku
+    elif sort_col is search_sort_options.line_item_total:
+        order_by = db.search_view.c.cost
+    else:
+        order_by = db.search_view.c.created_at
+
+    if sort_order == search_sort_order.asc:
+        order_by = order_by.asc()
+    else:
+        order_by = order_by.desc()
+
+    # return {
+    #     "previous": "",
+    #     "next": "",
+    #     "results": [
+    #         {
+    #             "line_item_id": 1,
+    #             "item_sku": "1 oblivion potion",
+    #             "customer_name": "Scaramouche",
+    #             "line_item_total": 50,
+    #             "timestamp": "2021-01-01T00:00:00Z",
+    #         }
+    #     ],
+    # }
 
 
 class Customer(BaseModel):
