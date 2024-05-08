@@ -76,15 +76,14 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         redMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'RedMl'")).scalar()
         greenMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'GreenMl'")).scalar()
         blueMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'BlueMl'")).scalar()
-        gold = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'gold'")).scalar()
+        gold = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'Gold'")).scalar()
         spent = 0
 
         purchase_plan = []
 
-        lessRed = redMl < 1000
-        lessGreen = greenMl < 1000
-        lessBlue = blueMl < 1000
-
+        # lessRed = redMl < 1000
+        # lessGreen = greenMl < 1000
+        # lessBlue = blueMl < 1000
 
         for barrel in wholesale_catalog:
             if ((barrel.price < gold) and barrel.price > 65):
@@ -94,25 +93,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                                         "sku": barrel.sku,
                                         "quantity": 1
                                     })
-            # #green    
-            # if ((barrel.potion_type == [0,1,0,0]) and (barrel.price < gold) and lessGreen and barrel.price > 65):
-            #     gold -= barrel.price
-            #     spent += barrel.price
-            #     purchase_plan.append({
-            #                             "sku": barrel.sku,
-            #                             "quantity": 1
-            #                         })
-            # #blue    
-            # if ((barrel.potion_type == [0,0,1,0]) and (barrel.price < gold) and lessBlue and barrel.price > 65):
-            #     gold -= barrel.price
-            #     spent += barrel.price
-            #     purchase_plan.append({
-            #                             "sku": barrel.sku,
-            #                             "quantity": 1
-            #                         })
                 
         connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"),
-                               [{"sku": "gold", "quantity": -spent }])
+                               [{"sku": "Gold", "quantity": -spent }])
             
                 
                 
