@@ -54,76 +54,53 @@ def search_orders(
     time is 5 total line items.
     """
 
-    
-    # Determine the column to sort by based on the `sort` parameter
-    if sort_col is search_sort_options.customer_name:
-        order_by = db.customer.c.name
-    elif sort_col is search_sort_options.item_sku:
-        order_by = db.cart_item.c.item
-    elif sort_col is search_sort_options.line_item_total:
-        order_by = db.cart_item.c.quantity
-    elif sort_col is search_sort_options.timestamp:
-        order_by = db.cart_item.c.created_at
-    else:
-        # If an invalid sorting option is provided, raise an assertion error
-        assert False
+    # get table with customer name, potion sku, potion timestamp, potion quantity
 
-    # Construct the SQL query
-    stmt = (
-        sqlalchemy.select(
-            db.customer.c.name,
-            db.cart_item.c.item,
-            db.cart_item.c.quantity,
-            db.cart_item.c.created_at
-        )
-        .limit(5)
-        .offset(0)
-        .order_by(order_by, db.cart_item.c.created_at)
-    )
 
-    with db.engine.begin() as connection: 
+    with db.engine.begin() as connection:
+
+        json = []
+        i = 0
+
         if customer_name != "":
-            # customer_name = connection.execute(sqlalchemy.text("SELECT name FROM customer WHERE name = :custName"), [{"custName":new_cart.customer_name }]).scalar()
-            stmt = stmt.where(db.customer.c.name.ilike(f"%{customer_name}%"))
+             result = connection.execute(sqlalchemy.text("SELECT customer.name , cart_item.item, cart_item.created_at, cart_item.quantity \
+                                                    FROM customer \
+                                                    JOIN cart ON customer.cu_id = cart.cu_id \
+                                                    JOIN cart_item ON cart.cart_id = cart_item.cart_id \
+                                                    WHERE customer.name = :name "), [{"name": customer_name}])
+        elif potion_sku != "":
+             result = connection.execute(sqlalchemy.text("SELECT customer.name , cart_item.item, cart_item.created_at, cart_item.quantity \
+                                                    FROM customer \
+                                                    JOIN cart ON customer.cu_id = cart.cu_id \
+                                                    JOIN cart_item ON cart.cart_id = cart_item.cart_id \
+                                                    WHERE cart_item.item = :sku "), [{"sku": potion_sku}])
+        else:
+             result = connection.execute(sqlalchemy.text("SELECT customer.name , cart_item.item, cart_item.created_at, cart_item.quantity \
+                                                    FROM customer \
+                                                    JOIN cart ON customer.cu_id = cart.cu_id \
+                                                    JOIN cart_item ON cart.cart_id = cart_item.cart_id \
+                                                    "))
 
-        if potion_sku != "":
-            stmt = stmt.where(db.cart_item.c.item.ilike(f"%{potion_sku}%"))
+        
+        for name, item, created_at, quantity in result:
+            
+            json.append( {
+                        "previous": "",
+                        "next": "",
+                        "results": [
+                                        {
+                                            "line_item_id": quantity,
+                                            "item_sku": item,
+                                            "customer_name": name,
+                                            "line_item_total": (quantity * 50),
+                                            "timestamp": created_at,
+                                        }
+                                    ],
+                            }
+                        )
 
-
-    # Execute the SQL query
-    with db.engine.connect() as conn:
-        result = conn.execute(stmt)
-        json_data = []
-        # Fetch the results row by row and construct JSON data
-        for row in result:
-            json_data.append(
-            {
-                "line_item_id": row.cart_id,
-                "item_sku": f"{row.quantity} {row.item}",
-                "customer_name":row.name ,
-                "line_item_total":(row.quantity * 50),
-                "timestamp": row.created_at,
-            }
-        )
-
-    # Return the JSON data
-    return json_data
-
-
-    # return {
-    #     "previous": "",
-    #     "next": "",
-    #     "results": [
-    #         {
-    #             "line_item_id": 1,
-    #             "item_sku": "1 oblivion potion",
-    #             "customer_name": "Scaramouche",
-    #             "line_item_total": 50,
-    #             "timestamp": "2021-01-01T00:00:00Z",
-    #         }
-    #     ],
-    # }
-
+        return json
+    
 
 class Customer(BaseModel):
     customer_name: str
