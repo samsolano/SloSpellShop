@@ -16,9 +16,9 @@ def get_inventory():
     """ """
 
     with db.engine.begin() as connection:
-        Ml = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name LIKE '%Ml%'")).scalar()
-        gold = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'gold'")).scalar()
-        total = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name LIKE '%Potion%'")).scalar()
+        Ml = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku LIKE '%Ml%'")).scalar()
+        gold = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'Gold'")).scalar()
+        total = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku LIKE '%Potion%'")).scalar()
 
 
     return {f"number_of_potions": {total}, "ml_in_barrels": {Ml}, "gold": {gold}}
