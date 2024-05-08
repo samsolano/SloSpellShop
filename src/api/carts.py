@@ -99,12 +99,12 @@ def create_cart(new_cart: Customer):
 
     with db.engine.begin() as connection: 
 
-        exists = connection.execute(sqlalchemy.text("SELECT cu_id FROM customer WHERE name = :custName AND class = :custClass AND level = :custLevel"),
-                                [{"custName":new_cart.customer_name , "custClass": new_cart.character_class, "custLevel": new_cart.level}])
+        # exists = connection.execute(sqlalchemy.text("SELECT cu_id FROM customer WHERE name = :custName AND class = :custClass AND level = :custLevel"),
+        #                         [{"custName":new_cart.customer_name , "custClass": new_cart.character_class, "custLevel": new_cart.level}])
 
 
-        if(exists == None):
-            connection.execute(sqlalchemy.text("INSERT INTO customer (name, class, level) VALUES (:custName, :custClass, :custLevel)"),
+        # if(exists == None):
+        connection.execute(sqlalchemy.text("INSERT INTO customer (name, class, level) VALUES (:custName, :custClass, :custLevel)"),
                                 [{"custName":new_cart.customer_name , "custClass": new_cart.character_class, "custLevel": new_cart.level}])
 
 
@@ -142,41 +142,21 @@ class CartCheckout(BaseModel):
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
 
-    # 
+    # get all of the items in that cart id
+    # need to insert into ledger negative potions that are sold,and increase gold for num sold
 
 
     with db.engine.begin() as connection:
-        redNum = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
+        table = connection.execute(sqlalchemy.text("SELECT item, quantity FROM cart_item WHERE cart_id = :cartID"), [{"cartID": cart_id}])
+        totalPotions = 0
 
-    # totalPotions = 0
+        for item, quantity in table:
+            totalPotions += quantity
+            connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:name, :quant)"), [{"name": item, "quant": -1 * quantity}])
 
-    # with db.engine.begin() as connection:
-    #     redNum = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).scalar()
-    #     greenNum = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).scalar()
-    #     blueNum = connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).scalar()
-    #     gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).scalar()
-    #     currCart = cart[cart_id]
+        connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES ('Gold', :quant)"), [{"quant": totalPotions * 50}])
 
-
-    #     for sku in currCart:
-    #         if sku == "RED_POTION":
-    #             redNum -= currCart[sku]
-    #             totalPotions += currCart[sku]
-    #         elif sku == "GREEN_POTION":
-    #             greenNum -= currCart[sku]
-    #             totalPotions += currCart[sku]
-    #         elif sku == "BLUE_POTION":
-    #             blueNum -= currCart[sku]
-    #             totalPotions += currCart[sku]
-
-
-
-    #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_red_potions = {redNum}"))
-    #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = {greenNum}"))
-    #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_blue_potions = {blueNum}"))
-    #     connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = {gold + (50 * totalPotions)}"))
-
-    # return {"total_potions_bought": totalPotions, "total_gold_paid": (50 * totalPotions)}
+    return {"total_potions_bought": totalPotions, "total_gold_paid": (50 * totalPotions)}
 
 
 

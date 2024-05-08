@@ -34,27 +34,29 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     #update and decrease gold into ledger
 
         purchasePrice = 0
+        Ml = 0
         name = ""
 
         #gets new ml values for potion color
         for barrel in barrels_delivered:
             # for red barrel
             if barrel.potion_type == [1,0,0,0]:
-                redMl += (barrel.ml_per_barrel * barrel.quantity)
+                Ml = (barrel.ml_per_barrel * barrel.quantity)
                 name = "RedMl"
             # for green barrel
             elif barrel.potion_type == [0,1,0,0]:
-                greenMl += (barrel.ml_per_barrel * barrel.quantity)
+                Ml = (barrel.ml_per_barrel * barrel.quantity)
                 name = "GreenMl"
             # for blue barrel
             elif barrel.potion_type == [0,0,1,0]:
-                blueMl += (barrel.ml_per_barrel * barrel.quantity)
+                Ml = (barrel.ml_per_barrel * barrel.quantity)
                 name = "BlueMl"
 
             purchasePrice += (barrel.price * barrel.quantity)
 
             connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"), 
-                               [{"sku":name, "quantity": barrel.quantity}])
+                            [{"sku":name, "quantity": Ml }])
+
 
 
         connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"), 
@@ -71,17 +73,17 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     with db.engine.begin() as connection:
         #check ml if less than 300 then buy stuff
 
-        redMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'RedMl'")).scalar()
-        greenMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'GreenMl'")).scalar()
-        blueMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'BlueMl'")).scalar()
-        gold = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE name = 'gold'")).scalar()
+        redMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'RedMl'")).scalar()
+        greenMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'GreenMl'")).scalar()
+        blueMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'BlueMl'")).scalar()
+        gold = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'gold'")).scalar()
         spent = 0
 
         purchase_plan = []
 
-        lessRed = redMl < 300
-        lessGreen = greenMl < 300
-        lessBlue = blueMl < 300
+        lessRed = redMl < 1000
+        lessGreen = greenMl < 1000
+        lessBlue = blueMl < 1000
 
 
         for barrel in wholesale_catalog:
@@ -106,8 +108,11 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             spent += barrel.price
                 
         connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"),
-                               [{"sku": "gold", "quantity": (spent - gold) }])
+                               [{"sku": "gold", "quantity": -spent }])
             
                 
                 
         return purchase_plan
+    
+
+    # DO: need logic for quantity of barrels in purchase plan instead of just 1
