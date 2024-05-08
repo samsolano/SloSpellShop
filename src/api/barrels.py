@@ -93,11 +93,10 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                                         "sku": barrel.sku,
                                         "quantity": 1
                                     })
-                
-        connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"),
+        if(spent > 0):
+            connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"),
                                [{"sku": "Gold", "quantity": -spent }])
-            
-                
+
                 
         return purchase_plan
     
