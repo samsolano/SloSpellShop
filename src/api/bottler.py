@@ -31,13 +31,13 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
 
             # gets name of potion delivered
             name = connection.execute(sqlalchemy.text("SELECT name FROM potions WHERE red = :red AND green = :green AND blue = :blue"),
-                                    [{"quant": deliverQuantity, "red": type[0], "green": type[1], "blue": type[2] }]).scalar()
+                                    [{"red": type[0], "green": type[1], "blue": type[2] }]).scalar()
             
             # inserts into ledger the name and quantity of new potion
             connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:sku, :quantity)"),
-                               [{"sku":name, "quantity": 1}])
+                               [{"sku":name, "quantity": deliverQuantity}])
             
-            # inserts into ledge the change in mL
+            # inserts into ledger the change in mL
             connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:redMl, :RedQuantity), (:greenMl, :GreenQuantity), (:blueMl, :BlueQuantity)"),
                                 [{"redMl": "RedMl", "RedQuantity": -1 * deliverQuantity * type[0], "greenMl": "greenMl", "GreenQuantity": -1 * deliverQuantity * type[1], "blueMl": "BlueMl", "BlueQuantity": -1 * deliverQuantity * type[2]}])
 
@@ -65,6 +65,33 @@ def get_bottle_plan():
 
         for red,blue,green in colors:
 
+            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
+                redMl -= red
+                greenMl -= green
+                blueMl -= blue
+                bottle_plan.append(
+                {
+                    "potion_type": [red, green, blue, 0],
+                    "quantity": 1
+                })
+            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
+                redMl -= red
+                greenMl -= green
+                blueMl -= blue
+                bottle_plan.append(
+                {
+                    "potion_type": [red, green, blue, 0],
+                    "quantity": 1
+                })
+            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
+                redMl -= red
+                greenMl -= green
+                blueMl -= blue
+                bottle_plan.append(
+                {
+                    "potion_type": [red, green, blue, 0],
+                    "quantity": 1
+                })
             if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
                 redMl -= red
                 greenMl -= green
