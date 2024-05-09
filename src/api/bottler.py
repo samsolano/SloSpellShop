@@ -39,7 +39,7 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
             
             # inserts into ledger the change in mL
             connection.execute(sqlalchemy.text("INSERT INTO ledger (sku, quantity) VALUES (:redMl, :RedQuantity), (:greenMl, :GreenQuantity), (:blueMl, :BlueQuantity)"),
-                                [{"redMl": "RedMl", "RedQuantity": -1 * deliverQuantity * type[0], "greenMl": "greenMl", "GreenQuantity": -1 * deliverQuantity * type[1], "blueMl": "BlueMl", "BlueQuantity": -1 * deliverQuantity * type[2]}])
+                                [{"redMl": "RedMl", "RedQuantity": -1 * deliverQuantity * type[0], "greenMl": "GreenMl", "GreenQuantity": -1 * deliverQuantity * type[1], "blueMl": "BlueMl", "BlueQuantity": -1 * deliverQuantity * type[2]}])
 
     return "OK"
 
@@ -92,16 +92,6 @@ def get_bottle_plan():
                     "potion_type": [red, green, blue, 0],
                     "quantity": 1
                 })
-            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
-                redMl -= red
-                greenMl -= green
-                blueMl -= blue
-                bottle_plan.append(
-                {
-                    "potion_type": [red, green, blue, 0],
-                    "quantity": 1
-                })
-            
     return bottle_plan
 
 if __name__ == "__main__":
