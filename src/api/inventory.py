@@ -21,7 +21,7 @@ def get_inventory():
         total = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku LIKE '%Potion%'")).scalar()
 
 
-    return {f"number_of_potions": {total}, "ml_in_barrels": {Ml}, "gold": {gold}}
+    return {"number_of_potions": total, "ml_in_barrels": Ml, "gold": gold}
 
 # Gets called once a day
 @router.post("/plan")
