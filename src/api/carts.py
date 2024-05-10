@@ -147,7 +147,7 @@ def create_cart(new_cart: Customer):
 
         cartid = connection.execute(sqlalchemy.text("SELECT cart_id FROM cart WHERE cu_id = :custID"), [{"custID":customerid }]).scalar()
 
-    response['cart_id'] = str(cartid)
+    response['cart_id'] = cartid
     return response
 
 
