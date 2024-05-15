@@ -99,7 +99,7 @@ def search_orders(
                             }
                         )
 
-        return json
+        return json[:5]
     
 
 class Customer(BaseModel):

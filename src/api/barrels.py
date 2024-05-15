@@ -84,9 +84,48 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         # lessRed = redMl < 1000
         # lessGreen = greenMl < 1000
         # lessBlue = blueMl < 1000
+        first = []
+        second = []
+        third = []
+
+        if(redMl <= greenMl and redMl <= blueMl):
+            first = [1,0,0,0]
+        elif(greenMl <= redMl and greenMl <= blueMl):
+            first = [0,1,0,0]
+        else:
+            first = [0,0,1,0]
+
+        # red is first figure out green or blue
+        if(first == [1,0,0,0] and greenMl <= blueMl):
+            second = [0,1,0,0]
+            third = [0,0,1,0]
+        # green first figure out red or blu
+        elif(first == [0,1,0,0] and redMl <= blueMl):
+            second = [1,0,0,0]
+            third = [0,0,1,0]
+        elif(first == [0,0,1,0] and blueMl <= greenMl):
+            second = [0,0,1,0]
+            third = [0,1,0,0]
+
+            
+
 
         for barrel in wholesale_catalog:
-            if ((barrel.price <= gold) and barrel.price > 65):
+            if ((barrel.price <= gold) and barrel.price > 65 and barrel.potion_type == first):
+                gold -= barrel.price
+                spent += barrel.price
+                purchase_plan.append({
+                                        "sku": barrel.sku,
+                                        "quantity": 1
+                                    })
+            elif ((barrel.price <= gold) and barrel.price > 65 and barrel.potion_type == second):
+                gold -= barrel.price
+                spent += barrel.price
+                purchase_plan.append({
+                                        "sku": barrel.sku,
+                                        "quantity": 1
+                                    })
+            elif ((barrel.price <= gold) and barrel.price > 65 and barrel.potion_type == third):
                 gold -= barrel.price
                 spent += barrel.price
                 purchase_plan.append({

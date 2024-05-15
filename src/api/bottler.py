@@ -74,24 +74,24 @@ def get_bottle_plan():
                     "potion_type": [red, green, blue, 0],
                     "quantity": 1
                 })
-            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
-                redMl -= red
-                greenMl -= green
-                blueMl -= blue
-                bottle_plan.append(
-                {
-                    "potion_type": [red, green, blue, 0],
-                    "quantity": 1
-                })
-            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
-                redMl -= red
-                greenMl -= green
-                blueMl -= blue
-                bottle_plan.append(
-                {
-                    "potion_type": [red, green, blue, 0],
-                    "quantity": 1
-                })
+            # if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
+            #     redMl -= red
+            #     greenMl -= green
+            #     blueMl -= blue
+            #     bottle_plan.append(
+            #     {
+            #         "potion_type": [red, green, blue, 0],
+            #         "quantity": 1
+            #     })
+            # if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
+            #     redMl -= red
+            #     greenMl -= green
+            #     blueMl -= blue
+            #     bottle_plan.append(
+            #     {
+            #         "potion_type": [red, green, blue, 0],
+            #         "quantity": 1
+            #     })
     return bottle_plan
 
 if __name__ == "__main__":
