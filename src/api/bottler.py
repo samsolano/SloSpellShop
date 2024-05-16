@@ -57,6 +57,8 @@ def get_bottle_plan():
         redMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'RedMl'")).scalar()
         greenMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'GreenMl'")).scalar()
         blueMl = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku = 'BlueMl'")).scalar()
+        potionTotal = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(quantity), 0) FROM ledger WHERE sku LIKE '%Potion%'")).scalar()
+        potionCap = connection.execute(sqlalchemy.text("SELECT potion_capacity FROM capacity")).scalar()
         
 
         bottle_plan = []
@@ -65,7 +67,7 @@ def get_bottle_plan():
 
         for red,blue,green in colors:
 
-            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
+            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue) and potionTotal < (potionCap - 2)):
                 redMl -= red
                 greenMl -= green
                 blueMl -= blue
@@ -74,15 +76,15 @@ def get_bottle_plan():
                     "potion_type": [red, green, blue, 0],
                     "quantity": 1
                 })
-            # if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
-            #     redMl -= red
-            #     greenMl -= green
-            #     blueMl -= blue
-            #     bottle_plan.append(
-            #     {
-            #         "potion_type": [red, green, blue, 0],
-            #         "quantity": 1
-            #     })
+            if((redMl >= red) and (greenMl >= green) and (blueMl >= blue) and potionTotal < (potionCap - 2)):
+                redMl -= red
+                greenMl -= green
+                blueMl -= blue
+                bottle_plan.append(
+                {
+                    "potion_type": [red, green, blue, 0],
+                    "quantity": 1
+                })
             # if((redMl >= red) and (greenMl >= green) and (blueMl >= blue)):
             #     redMl -= red
             #     greenMl -= green
