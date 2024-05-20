@@ -112,31 +112,31 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             
 
 
-        for barrel in wholesale_catalog:
-            if ((barrel.price <= gold) and barrel.price > 65 and barrel.potion_type == first and mlTotal < (mlCap - barrel.ml_per_barrel)):
-                mlTotal += barrel.ml_per_barrel
-                gold -= barrel.price
-                spent += barrel.price
-                purchase_plan.append({
-                                        "sku": barrel.sku,
-                                        "quantity": 1
-                                    })
-            elif ((barrel.price <= gold) and barrel.price > 65 and barrel.potion_type == second and mlTotal < (mlCap - barrel.ml_per_barrel)):
-                mlTotal += barrel.ml_per_barrel
-                gold -= barrel.price
-                spent += barrel.price
-                purchase_plan.append({
-                                        "sku": barrel.sku,
-                                        "quantity": 1
-                                    })
-            elif ((barrel.price <= gold) and barrel.price > 65 and barrel.potion_type == third and mlTotal < (mlCap - barrel.ml_per_barrel)):
-                mlTotal += barrel.ml_per_barrel
-                gold -= barrel.price
-                spent += barrel.price
-                purchase_plan.append({
-                                        "sku": barrel.sku,
-                                        "quantity": 1
-                                    })
+        # for barrel in wholesale_catalog:
+            # if ((barrel.price <= gold) and barrel.price > 65 and barrel.potion_type == first and mlTotal < (mlCap - barrel.ml_per_barrel)):
+            #     mlTotal += barrel.ml_per_barrel
+            #     gold -= barrel.price
+            #     spent += barrel.price
+            #     purchase_plan.append({
+            #                             "sku": barrel.sku,
+            #                             "quantity": 1
+            #                         })
+            # elif ((barrel.price <= gold) and barrel.price > 65 and barrel.potion_type == second and mlTotal < (mlCap - barrel.ml_per_barrel)):
+            #     mlTotal += barrel.ml_per_barrel
+            #     gold -= barrel.price
+            #     spent += barrel.price
+            #     purchase_plan.append({
+            #                             "sku": barrel.sku,
+            #                             "quantity": 1
+            #                         })
+            # elif ((barrel.price <= gold) and barrel.price > 65 and barrel.potion_type == third and mlTotal < (mlCap - barrel.ml_per_barrel)):
+            #     mlTotal += barrel.ml_per_barrel
+            #     gold -= barrel.price
+            #     spent += barrel.price
+            #     purchase_plan.append({
+            #                             "sku": barrel.sku,
+            #                             "quantity": 1
+            #                         })
 
 
                 
