@@ -137,16 +137,15 @@ def create_cart(new_cart: Customer):
 
 
         # if(exists == None):
-        connection.execute(sqlalchemy.text("INSERT INTO customer (name, class, level) VALUES (:custName, :custClass, :custLevel)"),
-                                [{"custName":new_cart.customer_name , "custClass": new_cart.character_class, "custLevel": new_cart.level}])
+        customerid = connection.execute(sqlalchemy.text("INSERT INTO customer (name, class, level) VALUES (:custName, :custClass, :custLevel) RETURNING cu_id"),
+                                [{"custName":new_cart.customer_name , "custClass": new_cart.character_class, "custLevel": new_cart.level}]).scalar()
+
+# returning
 
 
-        customerid = connection.execute(sqlalchemy.text("SELECT cu_id FROM customer WHERE name = :custName"), [{"custName":new_cart.customer_name }]).scalar()
+        cartid = connection.execute(sqlalchemy.text("INSERT INTO cart (cu_id) VALUES (:customerID) RETURNING cart_id"), [{"customerID": customerid}]).scalar()
 
-        connection.execute(sqlalchemy.text("INSERT INTO cart (cu_id) VALUES (:customerID)"), [{"customerID": customerid}])
-
-        cartid = connection.execute(sqlalchemy.text("SELECT cart_id FROM cart WHERE cu_id = :custID"), [{"custID":customerid }]).scalar()
-
+        
     response['cart_id'] = int(cartid)
     return response
 
